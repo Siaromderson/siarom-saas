@@ -23,7 +23,8 @@ export type SectionId =
   | "followup"
   | "agenda"
   | "marketing"
-  | "configuracoes";
+  | "configuracoes"
+  | "midias";
 
 export interface SectionDef {
   id: SectionId;
@@ -90,6 +91,14 @@ export const SECTIONS: Record<SectionId, SectionDef> = {
     minPlano: "diamante",
     descricao: "Disparos de Email e WhatsApp Marketing e canais Instagram/Facebook.",
   },
+  midias: {
+    id: "midias",
+    label: "Mídias",
+    href: "/crm/midias",
+    minPlano: "diamante",
+    descricao:
+      "Galeria de imagens, vídeos e documentos que a Alice envia automaticamente nas conversas.",
+  },
 };
 
 // Ordem de exibição no menu lateral
@@ -101,6 +110,7 @@ export const SECTION_ORDER: SectionId[] = [
   "agenda",
   "marketing",
   "configuracoes",
+  "midias",
 ];
 
 function rankDoPlano(plano: string | null | undefined): number {

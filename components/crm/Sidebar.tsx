@@ -12,6 +12,7 @@ import {
   Megaphone,
   Settings,
   Send,
+  Images,
   LogOut,
   Menu,
   X,
@@ -33,6 +34,7 @@ const ICONS: Record<SectionId, typeof LayoutDashboard> = {
   agenda: CalendarDays,
   marketing: Megaphone,
   configuracoes: Settings,
+  midias: Images,
 };
 
 export function Sidebar({

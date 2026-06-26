@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getEmpresaAtual } from "@/lib/empresaContext";
-import { normalizarConfig, type FollowupConfig } from "@/lib/followup";
 
 export interface WhatsappResult {
   error?: string;
@@ -73,6 +72,12 @@ export async function salvarDadosEmpresa(
   }
   dados.servicos = parseServicos(String(formData.get("servicos") || "[]"));
 
+  // Tempo de resposta da IA: 10 a 60 segundos (padrão 20). Limita a faixa.
+  const tempoRaw = Number(formData.get("tempo_resposta_ia"));
+  dados.tempo_resposta_ia = Number.isFinite(tempoRaw)
+    ? Math.min(60, Math.max(10, Math.round(tempoRaw)))
+    : 20;
+
   const supabase = await createClient();
   const { error } = await supabase
     .from("empresas")
@@ -80,45 +85,6 @@ export async function salvarDadosEmpresa(
     .eq("id", empresa.id);
 
   if (error) return { error: "Não foi possível salvar. Tente novamente." };
-  revalidatePath("/crm/configuracoes");
-  return { ok: true };
-}
-
-/**
- * Salva a configuração de follow-up (aba "Mensagens de follow-up") na tabela
- * dedicada followup_config (uma linha por empresa, upsert por empresa_id).
- */
-export async function salvarFollowup(
-  _prev: SaveResult,
-  formData: FormData
-): Promise<SaveResult> {
-  const empresa = await getEmpresaAtual();
-  if (!empresa) return { error: "Não autenticado." };
-
-  let cfg: FollowupConfig;
-  try {
-    cfg = normalizarConfig(JSON.parse(String(formData.get("config") || "{}")));
-  } catch {
-    return { error: "Configuração inválida." };
-  }
-
-  const supabase = await createClient();
-  const { error } = await supabase
-    .from("followup_config")
-    .upsert(
-      {
-        empresa_id: empresa.id,
-        ativo: cfg.ativo,
-        cadencias: cfg.cadencias,
-        enviar_fim_de_semana: cfg.enviar_fim_de_semana,
-        horario_inicio: cfg.horario_inicio,
-        horario_fim: cfg.horario_fim,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "empresa_id" }
-    );
-
-  if (error) return { error: "Não foi possível salvar o follow-up. Tente novamente." };
   revalidatePath("/crm/configuracoes");
   return { ok: true };
 }
@@ -249,31 +215,6 @@ export async function gerarQrcode(): Promise<QrResult> {
   } catch {
     return { error: "Não foi possível gerar o QR Code. Tente novamente." };
   }
-}
-
-// Salva as credenciais da instância UAZAPI da empresa.
-export async function salvarWhatsapp(
-  _prev: WhatsappResult,
-  formData: FormData
-): Promise<WhatsappResult> {
-  const empresa = await getEmpresaAtual();
-  if (!empresa) return { error: "Não autenticado." };
-
-  const dados = {
-    whatsapp_numero: String(formData.get("whatsapp_numero") || "").trim() || null,
-    uazapi_instance: String(formData.get("uazapi_instance") || "").trim() || null,
-    uazapi_token: String(formData.get("uazapi_token") || "").trim() || null,
-  };
-
-  const supabase = await createClient();
-  const { error } = await supabase
-    .from("empresas")
-    .update(dados)
-    .eq("id", empresa.id);
-
-  if (error) return { error: error.message };
-  revalidatePath("/crm/configuracoes");
-  return { ok: true };
 }
 
 // Verifica o status da conexão consultando a UAZAPI e persiste em uazapi_status.

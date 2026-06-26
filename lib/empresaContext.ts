@@ -28,6 +28,8 @@ export interface Empresa {
   horario_atendimento: string | null;
   saudacao_inicial: string | null;
   instrucoes_extras: string | null;
+  /** Segundos que a Alice aguarda antes de responder (10–60, padrão 20) */
+  tempo_resposta_ia: number | null;
   // WhatsApp / UAZAPI
   whatsapp_numero: string | null;
   uazapi_instance: string | null;

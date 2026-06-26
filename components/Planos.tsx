@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Loader2, Star } from "lucide-react";
+import { Check, Loader2, Star, Gem } from "lucide-react";
 import { PLANS, formatBRL, type Plan } from "@/lib/plans";
 
 export default function Planos() {
@@ -132,6 +132,12 @@ function PlanCard({
             {f}
           </li>
         ))}
+        {plan.exclusiveFeature && (
+          <li className="flex items-start gap-2 rounded-lg bg-brand-500/10 px-2 py-1.5 font-semibold text-brand-700">
+            <Gem className="mt-0.5 h-4 w-4 shrink-0 text-brand-600" />
+            {plan.exclusiveFeature}
+          </li>
+        )}
       </ul>
     </div>
   );

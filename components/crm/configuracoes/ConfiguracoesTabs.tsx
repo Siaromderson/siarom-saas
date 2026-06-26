@@ -1,21 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { Building2, MessageCircle, CreditCard, Send } from "lucide-react";
+import { Building2, MessageCircle, CreditCard } from "lucide-react";
 import type { Empresa } from "@/lib/empresaContext";
-import type { FollowupConfig } from "@/lib/followup";
 import { DadosEmpresaForm } from "./DadosEmpresaForm";
 import { WhatsappPanel } from "./WhatsappPanel";
 import { AssinaturaPanel, type PagamentoHist } from "./AssinaturaPanel";
-import { FollowupPanel } from "./FollowupPanel";
 
-type TabId = "dados" | "whatsapp" | "assinatura" | "followup";
+type TabId = "dados" | "whatsapp" | "assinatura";
 
 const TABS: { id: TabId; label: string; Icon: typeof Building2 }[] = [
   { id: "dados", label: "Dados da empresa", Icon: Building2 },
   { id: "whatsapp", label: "Conexão WhatsApp", Icon: MessageCircle },
   { id: "assinatura", label: "Assinatura", Icon: CreditCard },
-  { id: "followup", label: "Mensagens de follow-up", Icon: Send },
 ];
 
 interface Props {
@@ -23,7 +20,6 @@ interface Props {
   status: string;
   vencimento: string | null;
   historico: PagamentoHist[];
-  followupInicial: FollowupConfig;
 }
 
 export function ConfiguracoesTabs({
@@ -31,7 +27,6 @@ export function ConfiguracoesTabs({
   status,
   vencimento,
   historico,
-  followupInicial,
 }: Props) {
   const [tab, setTab] = useState<TabId>("dados");
 
@@ -77,8 +72,6 @@ export function ConfiguracoesTabs({
           historico={historico}
         />
       )}
-
-      {tab === "followup" && <FollowupPanel inicial={followupInicial} />}
     </div>
   );
 }

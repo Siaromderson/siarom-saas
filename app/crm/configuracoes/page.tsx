@@ -1,6 +1,5 @@
 import { getEmpresaAtual, getStatusLabel } from "@/lib/empresaContext";
 import { createClient } from "@/lib/supabase/server";
-import { normalizarConfig } from "@/lib/followup";
 import { ConfiguracoesTabs } from "@/components/crm/configuracoes/ConfiguracoesTabs";
 import type { PagamentoHist } from "@/components/crm/configuracoes/AssinaturaPanel";
 
@@ -10,14 +9,6 @@ export default async function ConfiguracoesPage() {
   const empresa = (await getEmpresaAtual())!;
   const status = getStatusLabel(empresa);
   const supabase = await createClient();
-
-  // Configuração de follow-up (uma linha por empresa)
-  const { data: fup } = await supabase
-    .from("followup_config")
-    .select("*")
-    .eq("empresa_id", empresa.id)
-    .maybeSingle();
-  const followupInicial = normalizarConfig(fup ?? {});
 
   // Histórico de pagamentos: chaves de ativação geradas para o email da empresa
   let historico: PagamentoHist[] = [];
@@ -35,7 +26,7 @@ export default async function ConfiguracoesPage() {
       <div>
         <h1 className="font-display text-2xl font-bold text-slate-900">Configurações</h1>
         <p className="text-sm text-slate-500">
-          Dados da empresa, conexão do WhatsApp, assinatura e mensagens de follow-up.
+          Dados da empresa, conexão do WhatsApp e assinatura.
         </p>
       </div>
 
@@ -44,7 +35,6 @@ export default async function ConfiguracoesPage() {
         status={status}
         vencimento={empresa.demo_expira_em}
         historico={historico}
-        followupInicial={followupInicial}
       />
     </div>
   );

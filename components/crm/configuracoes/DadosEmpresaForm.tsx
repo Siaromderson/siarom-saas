@@ -1,7 +1,7 @@
 "use client";
 
-import { useActionState } from "react";
-import { Loader2, Check } from "lucide-react";
+import { useActionState, useState } from "react";
+import { Loader2, Check, Clock, Info } from "lucide-react";
 import {
   salvarDadosEmpresa,
   type SaveResult,
@@ -46,6 +46,73 @@ function servicosIniciais(empresa: Empresa): Servico[] {
 
 const fieldClass =
   "w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/30";
+
+const TEMPO_MIN = 10;
+const TEMPO_MAX = 60;
+const TEMPO_PADRAO = 20;
+
+function clampTempo(v: number): number {
+  if (!Number.isFinite(v)) return TEMPO_PADRAO;
+  return Math.min(TEMPO_MAX, Math.max(TEMPO_MIN, Math.round(v)));
+}
+
+/** Tempo (em segundos) que a Alice aguarda antes de responder: 10 a 60. */
+function TempoRespostaField({ empresa }: { empresa: Empresa }) {
+  const inicial = clampTempo(Number(empresa.tempo_resposta_ia ?? TEMPO_PADRAO));
+  const [tempo, setTempo] = useState(inicial);
+
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-slate-50/60 p-5">
+      <div className="flex items-center justify-between gap-3">
+        <label
+          htmlFor="tempo_resposta_ia"
+          className="flex items-center gap-2 text-sm font-medium text-slate-700"
+        >
+          <Clock className="h-4 w-4 text-brand-600" />
+          Tempo de resposta da IA
+        </label>
+        <span className="inline-flex items-center rounded-lg bg-brand-gradient px-2.5 py-1 text-sm font-bold text-white shadow-sm">
+          {tempo}s
+        </span>
+      </div>
+
+      <div className="mt-4 flex items-center gap-4">
+        <input
+          id="tempo_resposta_ia"
+          name="tempo_resposta_ia"
+          type="range"
+          min={TEMPO_MIN}
+          max={TEMPO_MAX}
+          step={1}
+          value={tempo}
+          onChange={(e) => setTempo(clampTempo(Number(e.target.value)))}
+          className="h-2 w-full cursor-pointer appearance-none rounded-full bg-slate-200 accent-brand-600"
+        />
+        <input
+          type="number"
+          min={TEMPO_MIN}
+          max={TEMPO_MAX}
+          value={tempo}
+          onChange={(e) => setTempo(Number(e.target.value))}
+          onBlur={(e) => setTempo(clampTempo(Number(e.target.value)))}
+          aria-label="Tempo de resposta da IA em segundos"
+          className="w-20 shrink-0 rounded-xl border border-slate-200 bg-white px-3 py-2 text-center text-sm font-semibold text-slate-900 outline-none transition focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/30"
+        />
+      </div>
+
+      <div className="mt-2 flex justify-between text-xs text-slate-400">
+        <span>{TEMPO_MIN}s</span>
+        <span>{TEMPO_MAX}s</span>
+      </div>
+
+      <p className="mt-3 flex items-start gap-2 text-xs leading-relaxed text-slate-500">
+        <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-500" />
+        Quanto maior o tempo de resposta, melhor a Alice interpreta mensagens com
+        múltiplos áudios e textos seguidos, tornando o atendimento mais humanizado.
+      </p>
+    </div>
+  );
+}
 
 export function DadosEmpresaForm({ empresa }: { empresa: Empresa }) {
   const [state, formAction, pending] = useActionState<SaveResult, FormData>(
@@ -98,6 +165,8 @@ export function DadosEmpresaForm({ empresa }: { empresa: Empresa }) {
           className={fieldClass}
         />
       </div>
+
+      <TempoRespostaField empresa={empresa} />
 
       {state.error && (
         <p className="rounded-xl border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700">

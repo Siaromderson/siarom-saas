@@ -14,6 +14,8 @@ export interface Plan {
   inherits?: string;
   /** Recursos exclusivos/novos deste plano (além do que herda) */
   features: string[];
+  /** Diferencial exclusivo do plano, destacado na tabela */
+  exclusiveFeature?: string;
   /** Plano em destaque na tabela */
   highlight?: boolean;
 }
@@ -66,6 +68,7 @@ export const PLANS: Plan[] = [
     setupPrice: 219900,
     monthlyPrice: 52000,
     inherits: "Ouro",
+    exclusiveFeature: "Alice envia imagens, documentos e vídeos ativamente",
     features: [
       "Agente IA no Instagram e Facebook",
       "1.000 disparos de Email Marketing",

@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import VideoDemo from "@/components/VideoDemo";
 import ComoFunciona from "@/components/ComoFunciona";
+import AliceFaz from "@/components/AliceFaz";
 import Resultados from "@/components/Resultados";
 import Planos from "@/components/Planos";
 import Personalizado from "@/components/Personalizado";
@@ -17,6 +18,7 @@ export default function Home() {
         <Hero />
         <VideoDemo />
         <ComoFunciona />
+        <AliceFaz />
         <Resultados />
         <Planos />
         <Personalizado />
