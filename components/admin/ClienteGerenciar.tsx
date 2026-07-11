@@ -1,7 +1,14 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { Loader2, Check, Lock, Unlock, ShieldCheck } from "lucide-react";
+import {
+  Loader2,
+  Check,
+  Lock,
+  Unlock,
+  ShieldCheck,
+  RefreshCw,
+} from "lucide-react";
 import {
   SECTIONS,
   SECTION_ORDER,
@@ -14,6 +21,7 @@ import {
   atualizarPlano,
   toggleRecurso,
   definirAdmin,
+  reativarCliente,
 } from "@/app/admin/actions";
 
 interface Props {
@@ -21,6 +29,17 @@ interface Props {
   planoInicial: string;
   recursosIniciais: string[];
   isAdminInicial: boolean;
+  statusInicial: string;
+  demoExpiraEm: string | null;
+}
+
+function formatData(iso: string | null): string | null {
+  if (!iso) return null;
+  return new Date(iso).toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
 }
 
 export function ClienteGerenciar({
@@ -28,6 +47,8 @@ export function ClienteGerenciar({
   planoInicial,
   recursosIniciais,
   isAdminInicial,
+  statusInicial,
+  demoExpiraEm,
 }: Props) {
   const [plano, setPlano] = useState<string>(planoInicial || "bronze");
   const [recursos, setRecursos] = useState<string[]>(recursosIniciais);
@@ -36,6 +57,30 @@ export function ClienteGerenciar({
   const [pendingRecurso, startRecurso] = useTransition();
   const [pendingAdmin, startAdmin] = useTransition();
   const [msg, setMsg] = useState<string | null>(null);
+
+  // Reativação / teste grátis
+  const [status, setStatus] = useState<string>(statusInicial);
+  const [expiraEm, setExpiraEm] = useState<string | null>(demoExpiraEm);
+  const [dias, setDias] = useState<number>(7);
+  const [planoReativar, setPlanoReativar] = useState<string>(
+    planoInicial || "bronze"
+  );
+  const [pendingReativar, startReativar] = useTransition();
+
+  function reativar() {
+    setMsg(null);
+    startReativar(async () => {
+      const res = await reativarCliente(empresaId, dias, planoReativar);
+      if (res.error) {
+        setMsg(`Erro: ${res.error}`);
+        return;
+      }
+      setPlano(planoReativar);
+      setStatus("trial");
+      if (res.expiraEm) setExpiraEm(res.expiraEm);
+      setMsg(`Cliente reativado com ${dias} dia(s) de teste.`);
+    });
+  }
 
   function mudarPlano(novo: string) {
     setPlano(novo);
@@ -75,8 +120,85 @@ export function ClienteGerenciar({
 
   const empresaSim = { plano, recursos_liberados: recursos };
 
+  const statusCls =
+    status === "ativo"
+      ? "bg-accent-500/15 text-accent-600"
+      : status === "trial"
+        ? "bg-amber-100 text-amber-700"
+        : "bg-red-100 text-red-700";
+
   return (
     <div className="space-y-6">
+      {/* Reativar / Teste grátis */}
+      <section className="card p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="flex items-center gap-2 font-display text-lg font-bold text-slate-900">
+            <RefreshCw className="h-5 w-5 text-brand-600" /> Reativar cliente
+          </h2>
+          <span
+            className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold capitalize ${statusCls}`}
+          >
+            {status}
+          </span>
+        </div>
+        <p className="mt-1 text-sm text-slate-500">
+          Concede um novo período de teste grátis e define o plano liberado.
+          {expiraEm && (
+            <>
+              {" "}
+              Teste atual expira em{" "}
+              <strong className="text-slate-700">{formatData(expiraEm)}</strong>.
+            </>
+          )}
+        </p>
+
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <label className="block">
+            <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Dias de teste
+            </span>
+            <input
+              type="number"
+              min={1}
+              max={365}
+              value={dias}
+              onChange={(e) => setDias(Number(e.target.value))}
+              className="w-full rounded-xl border border-white/60 bg-white/60 px-4 py-2.5 text-sm text-slate-900 outline-none backdrop-blur-md focus:border-brand-400"
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+              Plano liberado
+            </span>
+            <select
+              value={planoReativar}
+              onChange={(e) => setPlanoReativar(e.target.value)}
+              className="w-full rounded-xl border border-white/60 bg-white/60 px-4 py-2.5 text-sm text-slate-900 outline-none backdrop-blur-md focus:border-brand-400"
+            >
+              {PLANS.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <button
+          onClick={reativar}
+          disabled={pendingReativar || !dias || dias < 1}
+          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-brand-gradient px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-700/20 transition disabled:opacity-60"
+        >
+          {pendingReativar ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <RefreshCw className="h-4 w-4" />
+          )}
+          Reativar com {dias || 0} dia(s) de teste
+        </button>
+      </section>
+
       {/* Plano */}
       <section className="card p-6">
         <h2 className="font-display text-lg font-bold text-slate-900">Plano</h2>

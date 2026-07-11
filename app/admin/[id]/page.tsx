@@ -92,6 +92,8 @@ export default async function ClientePage({
         planoInicial={empresa.plano ?? "bronze"}
         recursosIniciais={recursos}
         isAdminInicial={Boolean(empresa.is_admin)}
+        statusInicial={status}
+        demoExpiraEm={empresa.demo_expira_em}
       />
     </div>
   );

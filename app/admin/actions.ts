@@ -9,6 +9,8 @@ import type { PlanoId } from "@/lib/features";
 export interface AdminResult {
   error?: string;
   ok?: boolean;
+  /** ISO da nova expiração do teste (retornado por reativarCliente) */
+  expiraEm?: string;
 }
 
 const PLANOS_VALIDOS: PlanoId[] = ["bronze", "prata", "ouro", "diamante"];
@@ -66,6 +68,44 @@ export async function toggleRecurso(
   if (error) return { error: error.message };
   revalidatePath(`/admin/${empresaId}`);
   return { ok: true };
+}
+
+/**
+ * Reativa um cliente concedendo um novo período de teste grátis e definindo
+ * o plano liberado. Zera o contador do teste (demo_inicio) e define
+ * demo_expira_em para daqui a `dias` dias — o status volta a "trial".
+ */
+export async function reativarCliente(
+  empresaId: string,
+  dias: number,
+  plano: string
+): Promise<AdminResult> {
+  await requireAdmin();
+  if (!PLANOS_VALIDOS.includes(plano as PlanoId)) {
+    return { error: "Plano inválido." };
+  }
+  if (!Number.isFinite(dias) || dias < 1 || dias > 365) {
+    return { error: "Informe de 1 a 365 dias de teste." };
+  }
+
+  const inicio = new Date();
+  const expira = new Date(inicio.getTime() + dias * 86_400_000);
+
+  const admin = createAdminClient();
+  const { error } = await admin
+    .from("empresas")
+    .update({
+      plano,
+      demo_inicio: inicio.toISOString(),
+      demo_expira_em: expira.toISOString(),
+      feedback_enviado: false,
+    })
+    .eq("id", empresaId);
+
+  if (error) return { error: error.message };
+  revalidatePath(`/admin/${empresaId}`);
+  revalidatePath("/admin");
+  return { ok: true, expiraEm: expira.toISOString() };
 }
 
 /** Promove/rebaixa uma empresa a admin. */
