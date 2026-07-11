@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { getEmpresaAtual } from "@/lib/empresaContext";
 import { temAcesso } from "@/lib/features";
@@ -26,7 +27,9 @@ export default async function ContatosPage() {
           Todos os leads e conversas da sua empresa. Clique para ver o histórico.
         </p>
       </div>
-      <ContatosList chats={(data ?? []) as Chat[]} />
+      <Suspense fallback={null}>
+        <ContatosList chats={(data ?? []) as Chat[]} />
+      </Suspense>
     </div>
   );
 }

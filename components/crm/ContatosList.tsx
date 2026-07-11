@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Search, X, MessageCircle } from "lucide-react";
 import {
   ETAPAS,
@@ -16,6 +17,19 @@ export function ContatosList({ chats }: { chats: Chat[] }) {
   const [etapa, setEtapa] = useState("");
   const [sentimento, setSentimento] = useState("");
   const [aberto, setAberto] = useState<Chat | null>(null);
+  const searchParams = useSearchParams();
+
+  // Abre automaticamente a conversa quando chega do Kanban via ?chat=<id>
+  // (ou ?telefone=<tel> como fallback).
+  useEffect(() => {
+    const chatId = searchParams.get("chat");
+    const telefone = searchParams.get("telefone");
+    if (!chatId && !telefone) return;
+    const alvo = chats.find(
+      (c) => (chatId && c.id === chatId) || (telefone && c.telefone === telefone)
+    );
+    if (alvo) setAberto(alvo);
+  }, [searchParams, chats]);
 
   const filtrados = useMemo(() => {
     return chats.filter((c) => {
