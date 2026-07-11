@@ -172,8 +172,13 @@ export function KanbanBoard({ chatsIniciais }: { chatsIniciais: Chat[] }) {
 function InfoCard({ chat, onClose }: { chat: Chat; onClose: () => void }) {
   const router = useRouter();
   const Icon = CANAL_ICON[chat.canal ?? "whatsapp"] ?? MessageCircle;
+  // Se ultima_interacao for uma data (timestamp), formata até os minutos;
+  // se for texto livre, mostra como está; senão cai para a data de criação.
   const ultimoContato =
-    chat.ultima_interacao || formatarDataCompleta(chat.created_at) || "—";
+    formatarDataCurta(chat.ultima_interacao) ||
+    chat.ultima_interacao ||
+    formatarDataCurta(chat.created_at) ||
+    "—";
 
   function conversar() {
     // Abre a conversa deste lead na tela de Chat (Contatos), passando o id/telefone.
