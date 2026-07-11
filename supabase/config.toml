@@ -1,0 +1,15 @@
+# Configuração das Edge Functions do Chat interativo.
+#
+# verify_jwt = false → a função NÃO exige o JWT do Supabase. A autorização é
+# feita pelo segredo compartilhado no header x-api-key (CHAT_API_SECRET),
+# o que permite chamar tanto pelo app quanto pelo n8n sem sessão de usuário.
+#
+# Deploy pelo CLI:
+#   supabase functions deploy enviar-mensagem --no-verify-jwt
+#   supabase functions deploy enviar-midia    --no-verify-jwt
+
+[functions.enviar-mensagem]
+verify_jwt = false
+
+[functions.enviar-midia]
+verify_jwt = false

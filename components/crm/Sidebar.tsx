@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
+  MessagesSquare,
   KanbanSquare,
   Users,
   CalendarDays,
@@ -28,6 +29,7 @@ import {
 
 const ICONS: Record<SectionId, typeof LayoutDashboard> = {
   dashboard: LayoutDashboard,
+  chat: MessagesSquare,
   kanban: KanbanSquare,
   contatos: Users,
   followup: Send,

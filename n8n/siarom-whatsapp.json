@@ -1,0 +1,196 @@
+{
+  "name": "Siarom AI — WhatsApp (envio + recebimento)",
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "pinData": {},
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "trigger-texto",
+      "name": "Testar envio de texto",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [-40, -120]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "t1", "name": "chat_id", "value": "COLE_UUID_DO_CHAT", "type": "string" },
+            { "id": "t2", "name": "empresa_id", "value": "COLE_UUID_DA_EMPRESA", "type": "string" },
+            { "id": "t3", "name": "telefone", "value": "5511999999999", "type": "string" },
+            { "id": "t4", "name": "texto", "value": "Olá! Mensagem de teste da Siarom AI.", "type": "string" },
+            { "id": "t5", "name": "remetente", "value": "atendente", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "dados-texto",
+      "name": "Dados (texto)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [200, -120]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://mwyjpvxjythfjcmwrcxn.supabase.co/functions/v1/enviar-mensagem",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-api-key", "value": "COLE_AQUI_O_CHAT_API_SECRET" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "http-texto",
+      "name": "Enviar mensagem (texto)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, -120]
+    },
+    {
+      "parameters": {},
+      "id": "trigger-midia",
+      "name": "Testar envio de mídia",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [-40, 120]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "m1", "name": "chat_id", "value": "COLE_UUID_DO_CHAT", "type": "string" },
+            { "id": "m2", "name": "empresa_id", "value": "COLE_UUID_DA_EMPRESA", "type": "string" },
+            { "id": "m3", "name": "telefone", "value": "5511999999999", "type": "string" },
+            { "id": "m4", "name": "url", "value": "https://exemplo.com/catalogo.pdf", "type": "string" },
+            { "id": "m5", "name": "tipo", "value": "documento", "type": "string" },
+            { "id": "m6", "name": "legenda", "value": "Segue o material 👋", "type": "string" },
+            { "id": "m7", "name": "nome", "value": "catalogo.pdf", "type": "string" },
+            { "id": "m8", "name": "remetente", "value": "atendente", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "dados-midia",
+      "name": "Dados (mídia)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [200, 120]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://mwyjpvxjythfjcmwrcxn.supabase.co/functions/v1/enviar-midia",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "x-api-key", "value": "COLE_AQUI_O_CHAT_API_SECRET" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "http-midia",
+      "name": "Enviar mídia",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 120]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "siarom-whatsapp-in",
+        "options": {}
+      },
+      "id": "webhook-in",
+      "name": "Receber do WhatsApp (UAZAPI)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-40, 440],
+      "webhookId": "siarom-whatsapp-in"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "r1", "name": "empresa_id", "value": "COLE_UUID_DA_EMPRESA", "type": "string" },
+            { "id": "r2", "name": "chat_id", "value": "={{ $json.body.chat_id || null }}", "type": "string" },
+            { "id": "r3", "name": "direcao", "value": "entrada", "type": "string" },
+            { "id": "r4", "name": "tipo", "value": "texto", "type": "string" },
+            { "id": "r5", "name": "conteudo", "value": "={{ $json.body.text || $json.body.message || $json.body.mensagem }}", "type": "string" },
+            { "id": "r6", "name": "remetente", "value": "contato", "type": "string" },
+            { "id": "r7", "name": "status", "value": "recebida", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "map-in",
+      "name": "Mapear mensagem recebida",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [220, 440]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://mwyjpvxjythfjcmwrcxn.supabase.co/rest/v1/mensagens",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "COLE_AQUI_O_SERVICE_ROLE_KEY" },
+            { "name": "Authorization", "value": "Bearer COLE_AQUI_O_SERVICE_ROLE_KEY" },
+            { "name": "Prefer", "value": "return=representation" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "http-in",
+      "name": "Salvar em mensagens (Supabase)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 440]
+    },
+    {
+      "parameters": {
+        "content": "## Como usar\n\n**1) Envio (texto e mídia)** — funciona já.\nTroque em cada nó HTTP:\n- `x-api-key` → o valor do secret **CHAT_API_SECRET**\n- nos nós **Dados (...)**: `chat_id`, `empresa_id`, `telefone`\n\n`chat_id` sozinho já resolve empresa/telefone; ou mande `empresa_id` + `telefone`.\n\n**2) Recebimento** (branch de baixo) — template.\nAponte o webhook da UAZAPI para a URL deste nó **Webhook**.\nAjuste o mapeamento em **Mapear mensagem recebida** conforme o payload real\nda sua UAZAPI e preencha `empresa_id` (e `chat_id`, se resolver pelo telefone).\nUsa a **service_role key** do Supabase — mantenha em credencial, não commite.",
+        "height": 300,
+        "width": 420
+      },
+      "id": "nota",
+      "name": "Instruções",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [700, -140]
+    }
+  ],
+  "connections": {
+    "Testar envio de texto": {
+      "main": [[{ "node": "Dados (texto)", "type": "main", "index": 0 }]]
+    },
+    "Dados (texto)": {
+      "main": [[{ "node": "Enviar mensagem (texto)", "type": "main", "index": 0 }]]
+    },
+    "Testar envio de mídia": {
+      "main": [[{ "node": "Dados (mídia)", "type": "main", "index": 0 }]]
+    },
+    "Dados (mídia)": {
+      "main": [[{ "node": "Enviar mídia", "type": "main", "index": 0 }]]
+    },
+    "Receber do WhatsApp (UAZAPI)": {
+      "main": [[{ "node": "Mapear mensagem recebida", "type": "main", "index": 0 }]]
+    },
+    "Mapear mensagem recebida": {
+      "main": [[{ "node": "Salvar em mensagens (Supabase)", "type": "main", "index": 0 }]]
+    }
+  }
+}

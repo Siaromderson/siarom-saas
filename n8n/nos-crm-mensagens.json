@@ -1,0 +1,55 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "tableId": "mensagens",
+        "fieldsUi": {
+          "fieldValues": [
+            { "fieldId": "empresa_id", "fieldValue": "={{ $('Busca o Lead atualizado').first().json.empresa_id }}" },
+            { "fieldId": "chat_id", "fieldValue": "={{ $('Busca o Lead atualizado').first().json.id }}" },
+            { "fieldId": "direcao", "fieldValue": "entrada" },
+            { "fieldId": "tipo", "fieldValue": "texto" },
+            { "fieldId": "conteudo", "fieldValue": "={{ $('Setar Agente').first().json.mensagem }}" },
+            { "fieldId": "remetente", "fieldValue": "contato" },
+            { "fieldId": "status", "fieldValue": "recebida" }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [6928, 720],
+      "id": "b1a1c0de-0001-4a01-aa01-c12345678901",
+      "name": "Registrar entrada no CRM",
+      "credentials": {
+        "supabaseApi": { "id": "piu17ScWhFmLUiIq", "name": "SIAROM SAAS DEMO" }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "tableId": "mensagens",
+        "fieldsUi": {
+          "fieldValues": [
+            { "fieldId": "empresa_id", "fieldValue": "={{ $('Busca o Lead atualizado').first().json.empresa_id }}" },
+            { "fieldId": "chat_id", "fieldValue": "={{ $('Busca o Lead atualizado').first().json.id }}" },
+            { "fieldId": "direcao", "fieldValue": "saida" },
+            { "fieldId": "tipo", "fieldValue": "texto" },
+            { "fieldId": "conteudo", "fieldValue": "={{ $('respostaInteresse1').first().json.resposta }}" },
+            { "fieldId": "remetente", "fieldValue": "alice" },
+            { "fieldId": "status", "fieldValue": "enviada" }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [11104, 680],
+      "id": "b1a1c0de-0002-4a02-aa02-c12345678902",
+      "name": "Registrar saída no CRM",
+      "credentials": {
+        "supabaseApi": { "id": "piu17ScWhFmLUiIq", "name": "SIAROM SAAS DEMO" }
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {}
+}

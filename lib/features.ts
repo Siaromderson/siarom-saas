@@ -18,6 +18,7 @@ export const PLANO_RANK: Record<PlanoId, number> = {
 
 export type SectionId =
   | "dashboard"
+  | "chat"
   | "kanban"
   | "contatos"
   | "followup"
@@ -48,6 +49,14 @@ export const SECTIONS: Record<SectionId, SectionDef> = {
     href: "/crm",
     minPlano: "bronze",
     descricao: "Visão geral do atendimento.",
+  },
+  chat: {
+    id: "chat",
+    label: "Chat interativo",
+    href: "/crm/chat",
+    minPlano: "prata",
+    descricao:
+      "Converse pelo WhatsApp direto do CRM: envie texto, imagens, vídeos e documentos.",
   },
   configuracoes: {
     id: "configuracoes",
@@ -104,6 +113,7 @@ export const SECTIONS: Record<SectionId, SectionDef> = {
 // Ordem de exibição no menu lateral
 export const SECTION_ORDER: SectionId[] = [
   "dashboard",
+  "chat",
   "kanban",
   "contatos",
   "followup",
