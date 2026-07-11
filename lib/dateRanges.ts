@@ -1,6 +1,15 @@
 // Períodos do Dashboard. Retornam intervalo [from, to) em ISO.
 
-export type Periodo = "hoje" | "ontem" | "semana" | "mes" | "personalizado";
+export type Periodo =
+  | "hoje"
+  | "ontem"
+  | "semana"
+  | "mes"
+  | "90dias"
+  | "6meses"
+  | "1ano"
+  | "tudo"
+  | "personalizado";
 
 export interface Range {
   from: string;
@@ -13,6 +22,10 @@ export const PERIODO_LABEL: Record<Periodo, string> = {
   ontem: "Ontem",
   semana: "Esta semana",
   mes: "Este mês",
+  "90dias": "90 dias",
+  "6meses": "6 meses",
+  "1ano": "1 ano",
+  tudo: "Tudo",
   personalizado: "Personalizado",
 };
 
@@ -45,6 +58,24 @@ export function resolveRange(
     case "mes": {
       const ini = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
       return { from: ini.toISOString(), to: now.toISOString(), label: "Este mês" };
+    }
+    case "90dias": {
+      const ini = new Date(hoje);
+      ini.setDate(ini.getDate() - 90);
+      return { from: ini.toISOString(), to: now.toISOString(), label: "Últimos 90 dias" };
+    }
+    case "6meses": {
+      const ini = new Date(hoje);
+      ini.setMonth(ini.getMonth() - 6);
+      return { from: ini.toISOString(), to: now.toISOString(), label: "Últimos 6 meses" };
+    }
+    case "1ano": {
+      const ini = new Date(hoje);
+      ini.setFullYear(ini.getFullYear() - 1);
+      return { from: ini.toISOString(), to: now.toISOString(), label: "Último ano" };
+    }
+    case "tudo": {
+      return { from: new Date(0).toISOString(), to: now.toISOString(), label: "Todo o período" };
     }
     case "personalizado": {
       if (de && ate) {
